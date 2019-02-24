@@ -1,16 +1,18 @@
 
-import pandas as pd
 import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 
-# Example from https://towardsdatascience.com/neural-networks-from-scratch-easy-vs-hard-b26ddc2e89c7
+# Based on example from https://towardsdatascience.com/neural-networks-from-scratch-easy-vs-hard-b26ddc2e89c7
 
 
-
+# STEP 1: Load data, get onehot encoding of targets and split into training and testing
 dig = load_digits()
-onehot_target = pd.get_dummies(dig.target)
+onehot_target = [[1 if y==x else 0 for y in range(10)] for x in dig.target]
 x_train, x_val, y_train, y_val = train_test_split(dig.data, onehot_target, test_size=0.1, random_state=20)
+
+
+# STEP 2: Utility functions
 
 def sigmoid(s):
     return 1/(1 + np.exp(-s))
@@ -32,6 +34,10 @@ def error(pred, real):
     logp = - np.log(pred[np.arange(n_samples), real.argmax(axis=1)])
     loss = np.sum(logp)/n_samples
     return loss
+
+
+
+## STEP 3: NN Class:
 
 class MyNN:
     def __init__(self, x, y):
@@ -78,10 +84,13 @@ class MyNN:
         self.feedforward()
         return self.a3.argmax()
     
-model = MyNN(x_train/16.0, np.array(y_train))
+## STEP 4: Classification Exercise
 
+model = MyNN(x_train/16.0, np.array(y_train))
 epochs = 1500
+
 for x in range(epochs):
+    print("Epoch:",x, end=' ')
     model.feedforward()
     model.backprop()
 
