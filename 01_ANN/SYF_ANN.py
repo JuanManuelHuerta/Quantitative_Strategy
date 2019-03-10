@@ -3,16 +3,12 @@ import numpy as np
 class SYF_ANN:
 
     def __init__(self, x, y):
-
         self.x = x
-
         neurons = 128
         self.lr = 0.50
         self.n_layers=4
-
         ip_dim = x.shape[1]
         op_dim = y.shape[1]
-        
         self.W=[]
         self.B=[]
         self.A=[None for i in range(self.n_layers)]
@@ -27,7 +23,6 @@ class SYF_ANN:
             else:
                 self.W.append(np.random.randn(neurons, neurons))
                 self.B.append(np.zeros((1, neurons)))
-
         self.y = y
 
     def fit(self,**kwargs):
@@ -68,14 +63,11 @@ class SYF_ANN:
             else:
                 self.A[i]=self.sigmoid(np.dot(self.A[i-1],self.W[i])+self.B[i])
 
-        
     def backprop(self):
-
         loss = self.error(self.A[-1], self.y)
         print('Error :', loss)
         A_delta=[None for i in range(self.n_layers)]
         Z_delta=[None for i in range(self.n_layers)]
-
         for i in range(self.n_layers-1,-1,-1):
             if i==(self.n_layers-1):
                 A_delta[i] = self.cross_entropy(self.A[i], self.y)
@@ -89,7 +81,6 @@ class SYF_ANN:
             else:
                 self.W[i] -= self.lr * np.dot(self.A[i-1].T, A_delta[i])
                 self.B[i] -= self.lr * np.sum(A_delta[i], axis=0, keepdims=True)
-
 
     def predict(self, data):
         self.x = data
