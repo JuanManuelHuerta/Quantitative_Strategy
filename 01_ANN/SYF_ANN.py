@@ -1,12 +1,14 @@
 import numpy as np
 
 class SYF_ANN:
+
     def __init__(self, x, y):
+
         self.x = x
 
         neurons = 128
         self.lr = 0.50
-        self.n_layers=3
+        self.n_layers=4
 
         ip_dim = x.shape[1]
         op_dim = y.shape[1]
@@ -68,21 +70,26 @@ class SYF_ANN:
 
         
     def backprop(self):
+
         loss = self.error(self.A[-1], self.y)
         print('Error :', loss)
+        A_delta=[None for i in range(self.n_layers)]
+        Z_delta=[None for i in range(self.n_layers)]
 
-        a3_delta = self.cross_entropy(self.A[2], self.y) # w3
-        z2_delta = np.dot(a3_delta, self.W[2].T)
-        a2_delta = z2_delta * self.sigmoid_derv(self.A[1]) # w2
-        z1_delta = np.dot(a2_delta, self.W[1].T)
-        a1_delta = z1_delta * self.sigmoid_derv(self.A[0]) # w1
+        for i in range(self.n_layers-1,-1,-1):
+            if i==(self.n_layers-1):
+                A_delta[i] = self.cross_entropy(self.A[i], self.y)
+            else:
+                Z_delta[i]= np.dot(A_delta[i+1],self.W[i+1].T)
+                A_delta[i]=Z_delta[i]* self.sigmoid_derv(self.A[i])
+        for i in range(self.n_layers-1,-1,-1):
+            if i==0:
+                self.W[i] -= self.lr * np.dot(self.x.T, A_delta[i])
+                self.B[i] -= self.lr * np.sum(A_delta[i], axis=0)
+            else:
+                self.W[i] -= self.lr * np.dot(self.A[i-1].T, A_delta[i])
+                self.B[i] -= self.lr * np.sum(A_delta[i], axis=0, keepdims=True)
 
-        self.W[2] -= self.lr * np.dot(self.A[1].T, a3_delta)
-        self.B[2] -= self.lr * np.sum(a3_delta, axis=0, keepdims=True)
-        self.W[1] -= self.lr * np.dot(self.A[0].T, a2_delta)
-        self.B[1] -= self.lr * np.sum(a2_delta, axis=0)
-        self.W[0] -= self.lr * np.dot(self.x.T, a1_delta)
-        self.B[0] -= self.lr * np.sum(a1_delta, axis=0)
 
     def predict(self, data):
         self.x = data
