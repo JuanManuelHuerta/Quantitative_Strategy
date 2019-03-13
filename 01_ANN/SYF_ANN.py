@@ -44,10 +44,14 @@ class SYF_ANN:
             self.backprop()
         
     def relu(self,s):
-        return self.sigmoid(s)
+        x= s * (s>0)
+        return x
+        #return self.sigmoid(s)
 
     def relu_derv(self,s):
-        return self.sigmoid_derv(s)
+        x = 1.0 * (s>0)
+        return x
+        #return self.sigmoid_derv(s)
 
 
 
