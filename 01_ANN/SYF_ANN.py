@@ -6,12 +6,20 @@ class SYF_ANN:
         self.x = x
         neurons = 128
         self.lr = 0.50
-        self.n_layers=4
+        self.n_layers=3
+
+        #self.activation=self.sigmoid
+        #self.activation_derv=self.sigmoid_derv
+
+        self.activation=self.relu
+        self.activation_derv=self.relu_derv
+
         ip_dim = x.shape[1]
         op_dim = y.shape[1]
         self.W=[]
         self.B=[]
         self.A=[None for i in range(self.n_layers)]
+
 
         for i in range(self.n_layers):
             if i==0:
@@ -34,6 +42,14 @@ class SYF_ANN:
             print("Epoch:",x, end=' ')
             self.feedforward()
             self.backprop()
+        
+    def relu(self,s):
+        return self.sigmoid(s)
+
+    def relu_derv(self,s):
+        return self.sigmoid_derv(s)
+
+
 
     def sigmoid(self,s):
         return 1/(1 + np.exp(-s))
@@ -59,9 +75,9 @@ class SYF_ANN:
     def feedforward(self):
         for i in range(self.n_layers):
             if i==0:
-                self.A[i]=self.sigmoid(np.dot(self.x,self.W[i])+self.B[i])
+                self.A[i]=self.activation(np.dot(self.x,self.W[i])+self.B[i])
             else:
-                self.A[i]=self.sigmoid(np.dot(self.A[i-1],self.W[i])+self.B[i])
+                self.A[i]=self.activation(np.dot(self.A[i-1],self.W[i])+self.B[i])
 
     def backprop(self):
         loss = self.error(self.A[-1], self.y)
@@ -73,7 +89,7 @@ class SYF_ANN:
                 A_delta[i] = self.cross_entropy(self.A[i], self.y)
             else:
                 Z_delta[i]= np.dot(A_delta[i+1],self.W[i+1].T)
-                A_delta[i]=Z_delta[i]* self.sigmoid_derv(self.A[i])
+                A_delta[i]=Z_delta[i]* self.activation_derv(self.A[i])
         for i in range(self.n_layers-1,-1,-1):
             if i==0:
                 self.W[i] -= self.lr * np.dot(self.x.T, A_delta[i])
